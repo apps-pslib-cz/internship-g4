@@ -50,6 +50,12 @@ export async function GET(
         companyId: true,
         setId: true,
         locationId: true,
+        companyRepName: true,
+        companyRepEmail: true,
+        companyRepPhone: true,
+        companyMentorName: true,
+        companyMentorEmail: true,
+        companyMentorPhone: true,
         jobDescription: true,
         appendixText: true,
         additionalInfo: true,
@@ -168,6 +174,18 @@ export async function PUT(
     });
   }
 
+  const setIfDefined = <T extends object>(obj: Partial<T>, key: keyof T, value: any) => {
+    if (value !== undefined) (obj as any)[key] = value;
+  };
+
+  const allowedForAll = [
+    "companyRepName","companyRepEmail","companyRepPhone",
+    "companyMentorName","companyMentorEmail","companyMentorPhone",
+    "jobDescription","appendixText","additionalInfo","classname","conclusion",
+  ] as const;
+
+  const allowedForStaff = ["kind","state","setId","companyId","locationId","reservationUserId","highlighted"] as const;
+
   let internship = await prisma.internship.findFirst({
     where: { id: id },
   });
@@ -211,42 +229,18 @@ export async function PUT(
     body.state = internship.state;
   }
 
-  const updatedData: Partial<Internship> = {
-    companyRepName: body.companyRepName,
-    companyRepEmail: body.companyRepEmail,
-    companyRepPhone: body.companyRepPhone,
-    companyMentorName: body.companyMentorName,
-    companyMentorEmail: body.companyMentorEmail,
-    companyMentorPhone: body.companyMentorPhone,
-    jobDescription: body.jobDescription,
-    appendixText: body.appendixText,
-    additionalInfo: body.additionalInfo,
-    kind:
-      body.kind === "" || body.kind == null
-        ? internship!.kind
-        : Number(body.kind),
-    state:
-      body.state === "" || body.state == null
-        ? internship!.state
-        : Number(body.state),
-    setId:
-      body.setId === "" || body.setId == null
-        ? internship!.setId
-        : Number(body.setId),
-    companyId:
-      body.companyId === "" || body.companyId == null
-        ? internship!.companyId
-        : Number(body.companyId),
-    locationId:
-      body.locationId === "" || body.locationId == null
-        ? internship!.locationId
-        : Number(body.locationId),
-    reservationUserId: body.reservationUserId || null,
-    highlighted: body.highlighted === true || body.highlighted === "true",
-    classname: body.classname,
-    conclusion: body.conclusion,
-    updated: new Date(),
-  };
+  const updatedData: Partial<Internship> = {};
+  for (const k of allowedForAll) setIfDefined(updatedData, k, body[k]);
+
+  if (session.user.role === Role.ADMIN || session.user.role === Role.TEACHER) {
+    for (const k of allowedForStaff) setIfDefined(updatedData, k as any, body[k as any]);
+  } else {
+    updatedData.reservationUserId = internship.reservationUserId;
+    updatedData.highlighted = internship.highlighted;
+    updatedData.state = internship.state;
+  }
+  updatedData.updated = new Date();
+
   console.log("RES", updatedData);
 
   await prisma.internship.update({

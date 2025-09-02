@@ -1,10 +1,5 @@
 .pageContent {
-  margin-top: 60px;
-  min-height: auto;
-  margin-bottom: 5rem;
-  @media (min-width: 32em) {
-    margin-bottom: 3rem;
-  }
+
 }
 .navigation {
   margin: 0;
@@ -26,7 +21,8 @@
   }
 }
 .pageFooter {
-  padding: var(--mantine-spacing-sm) 0;
+  padding: calc(var(--mantine-spacing-sm)) 0
+           calc(var(--mantine-spacing-sm) + env(safe-area-inset-bottom)) 0;
   text-align: center;
   font-size: var(--mantine-font-size-xs);
   color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));

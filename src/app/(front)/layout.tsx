@@ -62,7 +62,11 @@ const FrontLayout = ({ children }: LayoutProps) => {
   };
 
   return (
-    <AppShell header={{ height: 60, collapsed: !pinned, offset: false }} padding="md">
+    <AppShell
+      header={{ height: 60, collapsed: !pinned, offset: true }}
+      footer={{ height: 56, offset: true }}
+      padding="md"
+    >
       <AppShell.Header>
         <Group justify="space-between" h="100%" mx="sm">
           <Group justify="space-between" h="100%" mx="sm">
@@ -153,7 +157,6 @@ const FrontLayout = ({ children }: LayoutProps) => {
               GitHub
             </Anchor>
           </Group>
-          {/* Pozn.: process.env.version na klientu nebude, pokud není NEXT_PUBLIC_... */}
           <Text>{process.env.NEXT_PUBLIC_VERSION ?? ""}</Text>
           <Group>
             <Anchor href="https://www.pslib.cz/" target="_blank">
@@ -164,6 +167,7 @@ const FrontLayout = ({ children }: LayoutProps) => {
                     alt="Průmyslová škola Liberec"
                     width={110}
                     height={20}
+                    priority
                   />
                 }
                 dark={
@@ -172,6 +176,7 @@ const FrontLayout = ({ children }: LayoutProps) => {
                     alt="Průmyslová škola Liberec"
                     width={110}
                     height={20}
+                    priority
                   />
                 }
               />
