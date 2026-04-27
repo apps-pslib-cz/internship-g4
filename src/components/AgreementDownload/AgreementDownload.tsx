@@ -70,9 +70,8 @@ const AgreementDownload: FC<AgreementDownloadProps> = ({ internshipId }) => {
   }, [internshipId]);
 
   const handlePrint = useReactToPrint({
-    content: useCallback(() => contentRef.current, []),
+    contentRef,
     documentTitle: "Smlouva o praxi",
-    removeAfterPrint: true,
   });
 
   return (

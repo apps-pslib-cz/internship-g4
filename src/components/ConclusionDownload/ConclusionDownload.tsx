@@ -70,9 +70,8 @@ const ConclusionDownload: FC<ConclusionDownloadProps> = ({ internshipId }) => {
   }, [shouldGeneratePdf, content]);
 
   const handlePrint = useReactToPrint({
-    content: () => contentRef.current,
+    contentRef,
     documentTitle: "Závěrečná zpráva z praxe",
-    removeAfterPrint: true,
   });
 
   return (
