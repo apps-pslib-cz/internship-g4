@@ -29,6 +29,7 @@ import {
   IconFlag2,
   IconListCheck,
   IconPlus,
+  IconX,
 } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -143,6 +144,47 @@ const ReservationsTable: FC<TInternshipsTableProps> = () => {
         .finally(() => {});
     },
     [],
+  );
+
+  const cancelReservation = useCallback(
+    (id: string) => {
+      fetch(`/api/internships/${id}/reservation`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Došlo k chybě při zpracovávání dat.");
+          }
+          notifications.show({
+            title: "Rezervace zrušena",
+            message: "Rezervace praxe byla zrušena.",
+            color: "orange",
+          });
+          fetchData(
+            state.filterUser,
+            state.filterUserGivenName,
+            state.filterUserSurname,
+            state.filterSet,
+            state.filterCompany,
+            state.filterCompanyName,
+            state.filterClassname,
+            state.filterKind,
+            state.filterHighlighted,
+            state.order,
+            state.page,
+            state.size,
+          );
+        })
+        .catch(() => {
+          notifications.show({
+            title: "Chyba",
+            message: "Zrušení rezervace se nepodařilo.",
+            color: "red",
+          });
+        });
+    },
+    [fetchData, state],
   );
 
   useEffect(() => {
@@ -504,6 +546,15 @@ const ReservationsTable: FC<TInternshipsTableProps> = () => {
                           href={`/inspections/${internship.id}/create`}
                         >
                           <IconPlus />
+                        </ActionIcon>
+                      </Tooltip>
+                      <Tooltip label="Zrušit rezervaci">
+                        <ActionIcon
+                          variant="light"
+                          color="red"
+                          onClick={() => cancelReservation(internship.id)}
+                        >
+                          <IconX />
                         </ActionIcon>
                       </Tooltip>
                     </Group>

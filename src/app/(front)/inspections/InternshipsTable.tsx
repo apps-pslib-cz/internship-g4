@@ -307,6 +307,53 @@ const InternshipsTable: FC = (TInternshipsTableProps) => {
     [fetchData, state],
   );
 
+  const cancelReservation = useCallback(
+    (id: string) => {
+      setError(null);
+      fetch(`/api/internships/${id}/reservation`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Došlo k chybě při zpracovávání dat.");
+          }
+          notifications.show({
+            title: "Rezervace zrušena",
+            message: "Rezervace praxe byla zrušena.",
+            color: "orange",
+          });
+          fetchData(
+            state.filterUser,
+            state.filterUserGivenName,
+            state.filterUserSurname,
+            state.filterSet,
+            state.filterCompany,
+            state.filterCompanyName,
+            state.filterClassname,
+            state.filterReservedUser,
+            state.filterKind,
+            state.filterHighlighted,
+            state.order,
+            state.page,
+            state.size,
+          );
+        })
+        .catch((error) => {
+          setError(error.message);
+          notifications.show({
+            title: "Chyba",
+            message: "Zrušení rezervace se nepodařilo.",
+            color: "red",
+          });
+        })
+        .finally(() => {});
+    },
+    [fetchData, state],
+  );
+
   const makeReservationsForUnreservedInLocation = useCallback(
     (locationId: number) => {
       setError(null);
@@ -787,7 +834,17 @@ const InternshipsTable: FC = (TInternshipsTableProps) => {
                             <IconMapPinCheck />
                           </ActionIcon>
                         </Tooltip>
-                      ) : null}
+                      ) : (
+                        <Tooltip label="Zrušit rezervaci">
+                          <ActionIcon
+                            variant="light"
+                            color="red"
+                            onClick={() => cancelReservation(internship.id)}
+                          >
+                            <IconX />
+                          </ActionIcon>
+                        </Tooltip>
+                      )}
                       {internship.highlighted ? (
                         <Tooltip label="Zrušit doporučení">
                           <ActionIcon

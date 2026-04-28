@@ -233,7 +233,15 @@ export async function PUT(
   for (const k of allowedForAll) setIfDefined(updatedData, k, body[k]);
 
   if (session.user.role === Role.ADMIN || session.user.role === Role.TEACHER) {
-    for (const k of allowedForStaff) setIfDefined(updatedData, k as any, body[k as any]);
+    if (body.kind !== undefined) updatedData.kind = Number(body.kind);
+    if (body.state !== undefined) updatedData.state = Number(body.state);
+    if (body.setId !== undefined) updatedData.setId = Number(body.setId);
+    if (body.companyId !== undefined) updatedData.companyId = Number(body.companyId);
+    if (body.locationId !== undefined) updatedData.locationId = Number(body.locationId);
+    if (body.highlighted !== undefined) updatedData.highlighted = Boolean(body.highlighted);
+    if ("reservationUserId" in body) {
+      updatedData.reservationUserId = body.reservationUserId || null;
+    }
   } else {
     updatedData.reservationUserId = internship.reservationUserId;
     updatedData.highlighted = internship.highlighted;
