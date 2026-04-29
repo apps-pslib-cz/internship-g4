@@ -45,3 +45,4 @@ prisma/dev.db
 # ignore archives
 **/*.zip
 prisma/dev.db
+build-output.txt
