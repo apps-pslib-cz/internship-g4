@@ -51,6 +51,8 @@ import { useSessionStorage } from "@/hooks/useSessionStorage";
 import { getInternshipKindLabel, getInternshipStateLabel } from "@/data/lists";
 import { UserAvatar } from "@/components";
 import { Set } from "@prisma/client";
+import { useSession } from "next-auth/react";
+import { Role } from "@/types/auth";
 
 type TInternshipsTableProps = {};
 type TInternshipsTableState = {
@@ -86,6 +88,7 @@ const InternshipsTable: FC = (TInternshipsTableProps) => {
     null,
   );
   const [error, setError] = useState<Error | null>(null);
+  const { data: session } = useSession();
   const [state, setState] = useState<TInternshipsTableState>({
     filterUser: searchParams.get("user") ?? "",
     filterUserGivenName: searchParams.get("givenName") ?? "",
@@ -834,7 +837,8 @@ const InternshipsTable: FC = (TInternshipsTableProps) => {
                             <IconMapPinCheck />
                           </ActionIcon>
                         </Tooltip>
-                      ) : (
+                      ) : session?.user.role === Role.ADMIN ||
+                        internship.reservationUser.id === session?.user.id ? (
                         <Tooltip label="Zrušit rezervaci">
                           <ActionIcon
                             variant="light"
@@ -844,7 +848,7 @@ const InternshipsTable: FC = (TInternshipsTableProps) => {
                             <IconX />
                           </ActionIcon>
                         </Tooltip>
-                      )}
+                      ) : null}
                       {internship.highlighted ? (
                         <Tooltip label="Zrušit doporučení">
                           <ActionIcon

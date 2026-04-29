@@ -4,6 +4,12 @@ import { auth } from "@/auth";
 import prisma from "@/utils/db";
 import { Role } from "@/types/auth";
 
+const canManageReservation = (
+  role: string,
+  sessionUserId: string,
+  reservationUserId: string | null,
+) => role === Role.ADMIN || reservationUserId === sessionUserId;
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -109,6 +115,24 @@ export async function DELETE(
     });
   }
 
+  if (internship.reservationUserId === null) {
+    return new Response("Not reserved", {
+      status: 400,
+    });
+  }
+
+  if (
+    !canManageReservation(
+      session.user.role,
+      session.user.id,
+      internship.reservationUserId,
+    )
+  ) {
+    return new Response("Forbidden", {
+      status: 403,
+    });
+  }
+
   await prisma.internship.update({
     where: { id: id },
     data: {
@@ -149,14 +173,30 @@ export async function PATCH(
   }
 
   const body = await request.json();
+  const reservationUserId = body.reservationUserId || null;
+
+  if (
+    session.user.role !== Role.ADMIN &&
+    ((reservationUserId === null &&
+      !canManageReservation(
+        session.user.role,
+        session.user.id,
+        internship.reservationUserId,
+      )) ||
+      (reservationUserId !== null && reservationUserId !== session.user.id))
+  ) {
+    return new Response("Forbidden", {
+      status: 403,
+    });
+  }
 
   await prisma.internship.update({
     where: { id: id },
     data: {
-      reservationUserId: body.reservationUserId,
+      reservationUserId,
     },
   });
-  return new Response(JSON.stringify(body), {
+  return new Response(JSON.stringify({ reservationUserId }), {
     status: 200,
   });
 }

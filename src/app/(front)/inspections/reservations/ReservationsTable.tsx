@@ -42,6 +42,7 @@ import { useSessionStorage } from "@/hooks/useSessionStorage";
 import { getInternshipKindLabel, getInternshipStateLabel } from "@/data/lists";
 import { UserAvatar } from "@/components";
 import { useSession } from "next-auth/react";
+import { Role } from "@/types/auth";
 
 type TInternshipsTableProps = {};
 type TInternshipsTableState = {
@@ -548,15 +549,18 @@ const ReservationsTable: FC<TInternshipsTableProps> = () => {
                           <IconPlus />
                         </ActionIcon>
                       </Tooltip>
-                      <Tooltip label="Zrušit rezervaci">
-                        <ActionIcon
-                          variant="light"
-                          color="red"
-                          onClick={() => cancelReservation(internship.id)}
-                        >
-                          <IconX />
-                        </ActionIcon>
-                      </Tooltip>
+                      {session?.user.role === Role.ADMIN ||
+                      internship.reservationUser?.id === session?.user.id ? (
+                        <Tooltip label="Zrušit rezervaci">
+                          <ActionIcon
+                            variant="light"
+                            color="red"
+                            onClick={() => cancelReservation(internship.id)}
+                          >
+                            <IconX />
+                          </ActionIcon>
+                        </Tooltip>
+                      ) : null}
                     </Group>
                   </Table.Td>
                 </Table.Tr>
