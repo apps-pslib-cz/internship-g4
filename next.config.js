@@ -28,9 +28,7 @@ module.exports = {
 
     return config;
   },
-  publicRuntimeConfig: {
-    // Will be available on both server and client
-    version,
+  env: {
+    NEXT_PUBLIC_VERSION: version,
   },
-  // ...other config
 };
